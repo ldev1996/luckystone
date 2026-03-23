@@ -12,7 +12,7 @@ Lucky Stone is a small command-line game built as a personal learning project in
   - **Normal**: standard outcome
 - Each event applies a multiplier that affects your credits.
 - The game dynamically adjusts probabilities based on outcomes:
-  - Winning events reset their respective chances
+  - Special events reset their respective chances
   - Other chances gradually increase over time
 
 ## 🏁 Win / Lose conditions
