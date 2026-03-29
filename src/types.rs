@@ -39,8 +39,8 @@ impl Event {
 
 #[derive(Copy, Clone)]
 pub struct Odds {
-    pub good: u8,
-    pub bad: u8,
+    good: u8,
+    bad: u8,
 }
 
 impl Odds {
@@ -55,15 +55,14 @@ impl Odds {
     }
 }
 
-#[derive(Copy, Clone)]
 pub struct Game {
-    pub credits: i32,
-    pub highest_score: i32,
-    pub odds: Odds,
+    credits: i32,
+    highest_score: i32,
+    odds: Odds,
 }
 
-impl Game {
-    pub fn new() -> Self {
+impl Default for Game {
+    fn default() -> Self {
         Self {
             credits: INITIAL_CREDITS,
             highest_score: INITIAL_CREDITS,
@@ -73,8 +72,18 @@ impl Game {
             },
         }
     }
+}
 
-    pub fn roll_event(self) -> Event {
+impl Game {
+    pub fn credits(&self) -> i32 {
+        self.credits
+    }
+
+    pub fn highest_score(&self) -> i32 {
+        self.highest_score
+    }
+
+    pub fn roll_event(&self) -> Event {
         let random_chance = random::random_percent();
         if random_chance <= self.odds.good {
             Event::Jackpot
@@ -85,7 +94,7 @@ impl Game {
         }
     }
 
-    pub fn print_turn(self) {
+    pub fn print_turn(&self) {
         println!(
             ">> You have {} Credits. Your luck is {}/{}. How much do you want to gamble?",
             format!("{}", self.credits).yellow(),
@@ -94,12 +103,12 @@ impl Game {
         )
     }
 
-    pub fn is_valid_bet(self, value: i32) -> bool {
-        value > 0 && value <= self.credits
+    pub fn has_won(&self) -> bool {
+        self.credits >= WIN_VALUE
     }
 
-    pub fn has_won(self) -> bool {
-        self.credits >= WIN_VALUE
+    pub fn has_lost(&self) -> bool {
+        self.credits <= 0
     }
 
     pub fn gamble(&mut self, amount: i32) {
