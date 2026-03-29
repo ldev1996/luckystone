@@ -1,6 +1,8 @@
-use crate::constants::*;
-use crate::random;
-use colored::Colorize;
+use crate::constants::{
+    BAD_MULTIPLIERS, CHANCE_CAP, GOOD_MULTIPLIERS, INITIAL_CREDITS, INITIAL_ODDS,
+    NORMAL_MULTIPLIERS, WIN_VALUE,
+};
+use crate::utils::{random_growth, random_multiplier, random_percent};
 
 #[derive(Copy, Clone)]
 pub enum Event {
@@ -11,29 +13,13 @@ pub enum Event {
 
 impl Event {
     pub fn multiplier(self) -> i8 {
-        let i = random::random_multiplier();
+        let i = random_multiplier();
 
         match self {
             Event::Jackpot => GOOD_MULTIPLIERS[i],
             Event::LuckBreak => BAD_MULTIPLIERS[i],
             Event::Normal => NORMAL_MULTIPLIERS[i],
         }
-    }
-
-    pub fn print(self, multiplier: i8) {
-        println!(
-            "{}",
-            match self {
-                Event::Jackpot => " JACKPOT! ".black().on_green(),
-                Event::LuckBreak => " LUCK BREAK! ".black().on_red(),
-                Event::Normal =>
-                    if multiplier > 0 {
-                        "GOOD LUCK!".green()
-                    } else {
-                        "BAD LUCK!".red()
-                    },
-            }
-        );
     }
 }
 
@@ -44,9 +30,17 @@ pub struct Odds {
 }
 
 impl Odds {
+    pub fn good(&self) -> u8 {
+        self.good
+    }
+
+    pub fn bad(&self) -> u8 {
+        self.bad
+    }
+
     pub fn update(&mut self, event: Event) {
-        self.good = (self.good + random::random_growth()).min(CHANCE_CAP);
-        self.bad = (self.bad + random::random_growth()).min(CHANCE_CAP);
+        self.good = (self.good + random_growth()).min(CHANCE_CAP);
+        self.bad = (self.bad + random_growth()).min(CHANCE_CAP);
         match event {
             Event::Jackpot => self.good = 0,
             Event::LuckBreak => self.bad = 0,
@@ -83,8 +77,12 @@ impl Game {
         self.highest_score
     }
 
+    pub fn odds(&self) -> &Odds {
+        &self.odds
+    }
+
     pub fn roll_event(&self) -> Event {
-        let random_chance = random::random_percent();
+        let random_chance = random_percent();
         if random_chance <= self.odds.good {
             Event::Jackpot
         } else if random_chance > 100 - self.odds.bad {
@@ -92,15 +90,6 @@ impl Game {
         } else {
             Event::Normal
         }
-    }
-
-    pub fn print_turn(&self) {
-        println!(
-            ">> You have {} Credits. Your luck is {}/{}. How much do you want to gamble?",
-            format!("{}", self.credits).yellow(),
-            format!("{}%", self.odds.good).green(),
-            format!("{}%", self.odds.bad).red()
-        )
     }
 
     pub fn has_won(&self) -> bool {
@@ -111,13 +100,14 @@ impl Game {
         self.credits <= 0
     }
 
-    pub fn gamble(&mut self, amount: i32) {
+    pub fn gamble(&mut self, amount: i32) -> (Event, i8) {
         let event = self.roll_event();
         let multiplier = event.multiplier();
-        event.print(multiplier);
         self.odds.update(event);
 
         self.credits += amount * multiplier as i32;
         self.highest_score = self.highest_score.max(self.credits);
+
+        (event, multiplier)
     }
 }

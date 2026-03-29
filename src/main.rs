@@ -1,9 +1,13 @@
 mod constants;
-mod random;
 mod types;
 mod ui;
+mod utils;
 
-use crate::{constants::WIN_VALUE, types::Game};
+use crate::{
+    constants::WIN_VALUE,
+    types::Game,
+    ui::{print_event, print_turn, read_valid_gamble, stop},
+};
 use colored::Colorize;
 
 fn main() {
@@ -11,14 +15,15 @@ fn main() {
     let mut game = Game::default();
 
     while !game.has_lost() {
-        game.print_turn();
-        game.gamble(ui::read_valid_bet(game.credits()));
+        print_turn(&game);
+        let (event, multiplier) = game.gamble(read_valid_gamble(game.credits()));
+        print_event(event, multiplier);
         if game.has_won() {
             println!(
                 ">> Congratulations, you won! You reached {} credits!",
                 WIN_VALUE
             );
-            ui::stop("Press Enter to exit...");
+            stop("Press Enter to exit...");
             return;
         }
     }
@@ -27,5 +32,5 @@ fn main() {
         ">> You lost! Highest Credits: ".red(),
         game.highest_score().to_string().red()
     );
-    ui::stop("Press Enter to exit...");
+    stop("Press Enter to exit...");
 }
