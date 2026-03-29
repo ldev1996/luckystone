@@ -1,40 +1,49 @@
-# Lucky Stone
+# 💎 Lucky Stone
 
-Lucky Stone is a small command-line game built as a personal learning project in Rust. The goal of the project is to practice language fundamentals, structuring a program, and applying concepts such as enums, pattern matching, and state management.
+**Lucky Stone** is a small command-line gambling game written in Rust.
+The project was created as a learning exercise and has gone through several refactoring iterations while exploring basic Rust design patterns and program structure.
 
-## 🎮 How the game works
+The game runs entirely in the terminal and revolves around managing credits and betting on random outcomes whose probabilities change over time.
 
-- You start with an initial amount of credits.
-- In each round, you choose how many credits to gamble.
-- The game randomly determines an event:
-  - **Jackpot**: increases your odds of winning in a positive way
-  - **Luck Break**: triggers a negative outcome
-  - **Normal**: standard outcome
-- Each event applies a multiplier that affects your credits.
-- The game dynamically adjusts probabilities based on outcomes:
-  - Special events reset their respective chances
-  - Other chances gradually increase over time
+## 🎮 Gameplay
 
-## 🏁 Win / Lose conditions
+The player starts with a fixed amount of credits and repeatedly chooses how many credits to gamble each turn.
 
-- You win if your credits reach the target value.
-- You lose if your credits drop to zero.
+For every bet, the game rolls one of three possible events:
 
-## 🧠 Purpose of the project
+| Event	     | Description                                                       |
+|:-----------|:------------------------------------------------------------------|
+| Jackpot    | Applies a positive multiplier and resets the jackpot probability  |
+| Luck Break | Applies a negative multiplier and resets the bad luck probability |
+| Normal     | Applies a smaller positive or negative multiplier                 |
 
-This project was created for learning purposes, with focus on:
+Each event applies a multiplier to the bet:
 
-- Rust fundamentals
-- Ownership and borrowing concepts
-- Enums and pattern matching
-- Structuring stateful applications
-- Handling user input in CLI programs
-- Basic game loop design
+`credits += bet * multiplier`
 
-## 🚧 Status
+After every round:
 
-- Functional prototype
-- In development
+- The probability of **Jackpot** and **Luck Break** gradually increases
+- When one of these events occurs, its probability is reset
+
+This creates a shifting risk/reward dynamic over time.
+
+### 🏁 Win / Lose conditions
+
+- **Win:** reach the target credit value
+- **Lose:** credits drop to zero or below
+
+## 🎯 Project Goals
+
+The purpose of the project is educational.
+It focuses on practicing:
+- basic Rust syntax and idioms
+- struct and enum based state modeling
+- separating game logic from input/output
+- modularizing a small CLI program
+- iterative refactoring
+
+The codebase has evolved through multiple rewrites as the structure of the program improved.
 
 ## ▶️ Running the project
 
