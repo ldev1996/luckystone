@@ -31,7 +31,7 @@ fn main() {
         }
     }
     println!(
-        "{} {}",
+        "{}{}",
         ">> You lost! Highest Credits: ".red(),
         game.highest_score().to_string().red()
     );

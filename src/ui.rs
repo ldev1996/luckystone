@@ -41,12 +41,12 @@ pub fn print_event(event: Event, multiplier: i8) {
     );
 }
 
-pub fn print_turn(credits: i32, good_odds: u8, bad_odds: u8) {
+pub fn print_turn(credits: i32, jackpot_odds: u8, luck_break_odds: u8) {
     println!(
         ">> You have {} Credits. Your luck is {}/{}. How much do you want to gamble?",
         format!("{}", credits).yellow(),
-        format!("{}%", good_odds).green(),
-        format!("{}%", bad_odds).red()
+        format!("{}%", jackpot_odds).green(),
+        format!("{}%", luck_break_odds).red()
     )
 }
 
