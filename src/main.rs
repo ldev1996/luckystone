@@ -1,21 +1,22 @@
 mod constants;
-mod types;
+mod engine;
+mod random;
 mod ui;
-mod utils;
 
 use crate::{
     constants::WIN_VALUE,
-    types::Game,
+    engine::Game,
+    random::FastRandom,
     ui::{print_event, print_turn, read_valid_gamble, stop},
 };
 use colored::Colorize;
 
 fn main() {
     println!("{:^82}", "Lucky Stone".black().on_yellow());
-    let mut game = Game::default();
+    let mut game = Game::new(FastRandom);
 
     while !game.has_lost() {
-        print_turn(&game);
+        print_turn(game.credits(), game.odds().good(), game.odds().bad());
         let (event, multiplier) = game.gamble(read_valid_gamble(game.credits()));
         print_event(event, multiplier);
         if game.has_won() {

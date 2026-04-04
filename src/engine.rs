@@ -2,7 +2,7 @@ use crate::constants::{
     BAD_MULTIPLIERS, CHANCE_CAP, GOOD_MULTIPLIERS, INITIAL_CREDITS, INITIAL_ODDS,
     NORMAL_MULTIPLIERS, WIN_VALUE,
 };
-use crate::utils::{random_growth, random_multiplier, random_percent};
+use crate::random::RandomProvider;
 
 #[derive(Copy, Clone)]
 pub enum Event {
@@ -12,9 +12,7 @@ pub enum Event {
 }
 
 impl Event {
-    pub fn multiplier(self) -> i8 {
-        let i = random_multiplier();
-
+    pub fn multiplier(self, i: usize) -> i8 {
         match self {
             Event::Jackpot => GOOD_MULTIPLIERS[i],
             Event::LuckBreak => BAD_MULTIPLIERS[i],
@@ -38,9 +36,9 @@ impl Odds {
         self.bad
     }
 
-    pub fn update(&mut self, event: Event) {
-        self.good = (self.good + random_growth()).min(CHANCE_CAP);
-        self.bad = (self.bad + random_growth()).min(CHANCE_CAP);
+    pub fn update(&mut self, good: u8, bad: u8, event: Event) {
+        self.good = (self.good + good).min(CHANCE_CAP);
+        self.bad = (self.bad + bad).min(CHANCE_CAP);
         match event {
             Event::Jackpot => self.good = 0,
             Event::LuckBreak => self.bad = 0,
@@ -49,14 +47,15 @@ impl Odds {
     }
 }
 
-pub struct Game {
+pub struct Game<R: RandomProvider> {
     credits: i32,
     highest_score: i32,
     odds: Odds,
+    rng: R,
 }
 
-impl Default for Game {
-    fn default() -> Self {
+impl<R: RandomProvider> Game<R> {
+    pub fn new(rng: R) -> Self {
         Self {
             credits: INITIAL_CREDITS,
             highest_score: INITIAL_CREDITS,
@@ -64,11 +63,10 @@ impl Default for Game {
                 good: INITIAL_ODDS,
                 bad: INITIAL_ODDS,
             },
+            rng,
         }
     }
-}
 
-impl Game {
     pub fn credits(&self) -> i32 {
         self.credits
     }
@@ -82,7 +80,7 @@ impl Game {
     }
 
     pub fn roll_event(&self) -> Event {
-        let random_chance = random_percent();
+        let random_chance = self.rng.percent();
         if random_chance <= self.odds.good {
             Event::Jackpot
         } else if random_chance > 100 - self.odds.bad {
@@ -102,8 +100,9 @@ impl Game {
 
     pub fn gamble(&mut self, amount: i32) -> (Event, i8) {
         let event = self.roll_event();
-        let multiplier = event.multiplier();
-        self.odds.update(event);
+        let multiplier = event.multiplier(self.rng.multiplier_index());
+        self.odds
+            .update(self.rng.growth(), self.rng.growth(), event);
 
         self.credits += amount * multiplier as i32;
         self.highest_score = self.highest_score.max(self.credits);

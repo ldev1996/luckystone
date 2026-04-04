@@ -1,7 +1,7 @@
 use colored::Colorize;
 use std::io::stdin;
 
-use crate::types::{Event, Game};
+use crate::engine::Event;
 
 pub fn read_valid_gamble(max: i32) -> i32 {
     loop {
@@ -41,12 +41,12 @@ pub fn print_event(event: Event, multiplier: i8) {
     );
 }
 
-pub fn print_turn(game: &Game) {
+pub fn print_turn(credits: i32, good_odds: u8, bad_odds: u8) {
     println!(
         ">> You have {} Credits. Your luck is {}/{}. How much do you want to gamble?",
-        format!("{}", game.credits()).yellow(),
-        format!("{}%", game.odds().good()).green(),
-        format!("{}%", game.odds().bad()).red()
+        format!("{}", credits).yellow(),
+        format!("{}%", good_odds).green(),
+        format!("{}%", bad_odds).red()
     )
 }
 
