@@ -1,12 +1,10 @@
 mod constants;
 mod engine;
-mod random;
 mod ui;
 
 use crate::{
     constants::WIN_VALUE,
-    engine::Game,
-    random::FastRandom,
+    engine::{Game, rng::FastRandom},
     ui::{print_event, print_turn, read_valid_gamble, stop},
 };
 use colored::Colorize;
@@ -16,7 +14,11 @@ fn main() {
     let mut game = Game::new(FastRandom);
 
     while !game.has_lost() {
-        print_turn(game.credits(), game.odds().good(), game.odds().bad());
+        print_turn(
+            game.credits(),
+            game.odds().jackpot(),
+            game.odds().luck_break(),
+        );
         let (event, multiplier) = game.gamble(read_valid_gamble(game.credits()));
         print_event(event, multiplier);
         if game.has_won() {

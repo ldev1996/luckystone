@@ -1,51 +1,7 @@
-use crate::constants::{
-    BAD_MULTIPLIERS, CHANCE_CAP, GOOD_MULTIPLIERS, INITIAL_CREDITS, INITIAL_ODDS,
-    NORMAL_MULTIPLIERS, WIN_VALUE,
+use crate::{
+    constants::{INITIAL_CREDITS, INITIAL_ODDS, WIN_VALUE},
+    engine::{Event, Odds, rng::RandomProvider},
 };
-use crate::random::RandomProvider;
-
-#[derive(Copy, Clone)]
-pub enum Event {
-    Jackpot,
-    LuckBreak,
-    Normal,
-}
-
-impl Event {
-    pub fn multiplier(self, i: usize) -> i8 {
-        match self {
-            Event::Jackpot => GOOD_MULTIPLIERS[i],
-            Event::LuckBreak => BAD_MULTIPLIERS[i],
-            Event::Normal => NORMAL_MULTIPLIERS[i],
-        }
-    }
-}
-
-#[derive(Copy, Clone)]
-pub struct Odds {
-    good: u8,
-    bad: u8,
-}
-
-impl Odds {
-    pub fn good(&self) -> u8 {
-        self.good
-    }
-
-    pub fn bad(&self) -> u8 {
-        self.bad
-    }
-
-    pub fn update(&mut self, good: u8, bad: u8, event: Event) {
-        self.good = (self.good + good).min(CHANCE_CAP);
-        self.bad = (self.bad + bad).min(CHANCE_CAP);
-        match event {
-            Event::Jackpot => self.good = 0,
-            Event::LuckBreak => self.bad = 0,
-            Event::Normal => (),
-        };
-    }
-}
 
 pub struct Game<R: RandomProvider> {
     credits: i32,
@@ -59,10 +15,7 @@ impl<R: RandomProvider> Game<R> {
         Self {
             credits: INITIAL_CREDITS,
             highest_score: INITIAL_CREDITS,
-            odds: Odds {
-                good: INITIAL_ODDS,
-                bad: INITIAL_ODDS,
-            },
+            odds: Odds::new(INITIAL_ODDS, INITIAL_ODDS),
             rng,
         }
     }
@@ -81,9 +34,9 @@ impl<R: RandomProvider> Game<R> {
 
     pub fn roll_event(&self) -> Event {
         let random_chance = self.rng.percent();
-        if random_chance <= self.odds.good {
+        if random_chance <= self.odds.jackpot() {
             Event::Jackpot
-        } else if random_chance > 100 - self.odds.bad {
+        } else if random_chance > 100 - self.odds.luck_break() {
             Event::LuckBreak
         } else {
             Event::Normal
