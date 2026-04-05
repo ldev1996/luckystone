@@ -18,17 +18,16 @@ fn main() {
             game.odds().jackpot(),
             game.odds().luck_break(),
         );
+
         let amount = loop {
-            match read_gamble() {
-                Some(v) => match game.validate_bet(v) {
-                    Ok(v) => break v,
-                    Err(msg) => print_error(msg),
-                },
-                None => print_error("⚠ Please type a number"),
+            match read_gamble().and_then(|v| game.validate_bet(v)) {
+                Ok(v) => break v,
+                Err(msg) => print_error(msg),
             }
         };
 
         print_event(game.gamble(amount));
+
         if game.has_won() {
             print_won(WIN_VALUE);
             stop();

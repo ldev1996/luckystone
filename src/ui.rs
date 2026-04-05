@@ -1,15 +1,18 @@
 use colored::Colorize;
 use std::io::stdin;
 
-use crate::engine::{Event, GambleOutcome};
+use crate::engine::{Event, GambleOutcome, GameError};
 
-pub fn read_gamble() -> Option<i32> {
+pub fn read_gamble() -> Result<i32, GameError> {
     let mut input = String::new();
     if stdin().read_line(&mut input).is_err() {
-        return None;
+        return Err(GameError::InvalidInput);
     }
 
-    input.trim().parse::<i32>().ok()
+    match input.trim().parse::<i32>() {
+        Ok(v) => Ok(v),
+        Err(_) => Err(GameError::InvalidInput),
+    }
 }
 
 pub fn print_title() {
