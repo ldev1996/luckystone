@@ -5,12 +5,11 @@ mod ui;
 use crate::{
     constants::WIN_VALUE,
     engine::{Game, rng::FastRandom},
-    ui::{print_event, print_turn, read_valid_gamble, stop},
+    ui::*,
 };
-use colored::Colorize;
 
 fn main() {
-    println!("{:^82}", "Lucky Stone".black().on_yellow());
+    print_title();
     let mut game = Game::new(FastRandom);
 
     while !game.has_lost() {
@@ -19,21 +18,23 @@ fn main() {
             game.odds().jackpot(),
             game.odds().luck_break(),
         );
-        let (event, multiplier) = game.gamble(read_valid_gamble(game.credits()));
-        print_event(event, multiplier);
+        let amount = loop {
+            match read_gamble() {
+                Some(v) => match game.validate_bet(v) {
+                    Ok(v) => break v,
+                    Err(msg) => print_error(msg),
+                },
+                None => print_error("⚠ Please type a number"),
+            }
+        };
+
+        print_event(game.gamble(amount));
         if game.has_won() {
-            println!(
-                ">> Congratulations, you won! You reached {} credits!",
-                WIN_VALUE
-            );
-            stop("Press Enter to exit...");
+            print_won(WIN_VALUE);
+            stop();
             return;
         }
     }
-    println!(
-        "{}{}",
-        ">> You lost! Highest Credits: ".red(),
-        game.highest_score().to_string().red()
-    );
-    stop("Press Enter to exit...");
+    print_loss(game.highest_score());
+    stop();
 }

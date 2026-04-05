@@ -1,7 +1,23 @@
 use crate::{
     constants::{INITIAL_CREDITS, INITIAL_ODDS, WIN_VALUE},
-    engine::{Event, Odds, rng::RandomProvider},
+    engine::{Event, GameError, Odds, rng::RandomProvider},
 };
+
+#[derive(Clone, Copy)]
+pub struct GambleOutcome {
+    event: Event,
+    multiplier: i8,
+}
+
+impl GambleOutcome {
+    pub fn event(&self) -> Event {
+        self.event
+    }
+
+    pub fn is_positive(&self) -> bool {
+        self.multiplier > 0
+    }
+}
 
 pub struct Game<R: RandomProvider> {
     credits: i32,
@@ -33,14 +49,7 @@ impl<R: RandomProvider> Game<R> {
     }
 
     pub fn roll_event(&self) -> Event {
-        let random_chance = self.rng.percent();
-        if random_chance <= self.odds.jackpot() {
-            Event::Jackpot
-        } else if random_chance > 100 - self.odds.luck_break() {
-            Event::LuckBreak
-        } else {
-            Event::Normal
-        }
+        self.odds.select_event(self.rng.percent())
     }
 
     pub fn has_won(&self) -> bool {
@@ -51,15 +60,24 @@ impl<R: RandomProvider> Game<R> {
         self.credits <= 0
     }
 
-    pub fn gamble(&mut self, amount: i32) -> (Event, i8) {
+    pub fn validate_bet(&self, amount: i32) -> Result<i32, GameError> {
+        if amount <= 0 {
+            return Err(GameError::NonPositiveBet);
+        }
+        if amount > self.credits {
+            return Err(GameError::CreditOverflow);
+        }
+        Ok(amount)
+    }
+
+    pub fn gamble(&mut self, amount: i32) -> GambleOutcome {
         let event = self.roll_event();
         let multiplier = event.multiplier(self.rng.multiplier_index());
-        self.odds
-            .update(self.rng.growth(), self.rng.growth(), event);
+        self.odds.grow(self.rng.growth(), self.rng.growth(), event);
 
         self.credits += amount * multiplier as i32;
         self.highest_score = self.highest_score.max(self.credits);
 
-        (event, multiplier)
+        GambleOutcome { event, multiplier }
     }
 }

@@ -24,7 +24,7 @@ impl Odds {
         self.luck_break
     }
 
-    pub fn update(&mut self, jackpot: u8, luck_break: u8, event: Event) {
+    pub fn grow(&mut self, jackpot: u8, luck_break: u8, event: Event) {
         self.jackpot = (self.jackpot + jackpot).min(CHANCE_CAP);
         self.luck_break = (self.luck_break + luck_break).min(CHANCE_CAP);
         match event {
@@ -32,5 +32,20 @@ impl Odds {
             Event::LuckBreak => self.luck_break = 0,
             Event::Normal => (),
         };
+    }
+
+    pub fn select_event(&self, roll: u8) -> Event {
+        debug_assert!(roll <= 100);
+
+        let jackpot_max = self.jackpot;
+        let luck_break_min = 100 - self.luck_break;
+
+        if roll <= jackpot_max {
+            Event::Jackpot
+        } else if roll >= luck_break_min {
+            Event::LuckBreak
+        } else {
+            Event::Normal
+        }
     }
 }
