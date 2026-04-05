@@ -1,13 +1,13 @@
 # 💎 Lucky Stone
 
 **Lucky Stone** is a small command-line gambling game written in Rust.
-The project was created as a learning exercise and has gone through several refactoring iterations while exploring basic Rust design patterns and program structure.
+The project was created as a learning exercise and has gone through several refactoring iterations while exploring Rust design patterns and program structure.
 
-The game runs entirely in the terminal and revolves around managing credits and betting on random outcomes whose probabilities change over time.
+The game runs entirely in the terminal and revolves around managing credits and betting on random outcomes whose probabilities gradually change over time.
 
 ## 🎮 Gameplay
 
-The player starts with a fixed amount of credits and repeatedly chooses how many credits to gamble each turn.
+The player starts with a fixed amount of credits and chooses how many to gamble each turn.
 
 For every bet, the game rolls one of three possible events:
 
@@ -15,7 +15,7 @@ For every bet, the game rolls one of three possible events:
 |:-----------|:------------------------------------------------------------------|
 | Jackpot    | Applies a positive multiplier and resets the jackpot probability  |
 | Luck Break | Applies a negative multiplier and resets the bad luck probability |
-| Normal     | Applies a smaller positive or negative multiplier                 |
+| Normal     | Applies a small positive or negative multiplier                   |
 
 Each event applies a multiplier to the bet:
 
@@ -42,8 +42,9 @@ It focuses on practicing:
 - separating game logic from input/output
 - modularizing a small CLI program
 - iterative refactoring
+- software engineering
 
-The codebase has evolved through multiple rewrites as the structure of the program improved.
+The codebase evolved through several rewrites as the program structure improved.
 
 ## ▶️ Running the project
 
@@ -55,4 +56,5 @@ cargo run
 
 ## 📌 Notes
 
-This project is not intended to be a production-ready game. It is primarily a sandbox for experimenting with Rust and improving coding practices over time.
+- This project is not intended to be a production-ready game. It is primarily a sandbox for experimenting with Rust and improving coding practices over time.
+- The project is intentionally over-engineered in places because its primary goal is to explore Rust patterns and program structure.

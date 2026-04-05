@@ -3,6 +3,10 @@ use crate::{
     engine::{Event, GameError, Odds, rng::RandomProvider},
 };
 
+/// Result produced after a gamble is resolved.
+///
+/// A `GambleOutcome` contains the event that occurred during the turn
+/// and the multiplier applied to the player's bet.
 #[derive(Clone, Copy)]
 pub struct GambleOutcome {
     event: Event,
@@ -10,10 +14,12 @@ pub struct GambleOutcome {
 }
 
 impl GambleOutcome {
+    /// Returns the event that occurred during the gamble.
     pub fn event(&self) -> Event {
         self.event
     }
 
+    /// Indicates whether the gamble produced a positive credit change.
     pub fn is_positive(&self) -> bool {
         self.multiplier > 0
     }
