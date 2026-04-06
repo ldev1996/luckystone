@@ -6,7 +6,7 @@ use crate::constants::{BAD_MULTIPLIERS, GOOD_MULTIPLIERS, MULTIPLIERS_LENGTH, NO
 /// to compute the final result of the player's bet.
 #[derive(Copy, Clone)]
 pub enum Event {
-    /// A rare positive event that uses the high-reward multiplier table.
+    /// A positive event that uses the high-reward multiplier table.
     Jackpot,
     /// A negative event that uses the penalty multiplier table.
     LuckBreak,
