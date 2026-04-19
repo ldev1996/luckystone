@@ -74,7 +74,7 @@ impl Odds {
 
         if roll <= jackpot_max {
             Event::Jackpot
-        } else if roll >= luck_break_min {
+        } else if roll > luck_break_min {
             Event::LuckBreak
         } else {
             Event::Normal
